@@ -1,11 +1,11 @@
-FROM python:3.9  # Base image with Python 3.9
+FROM python:3.9
 
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt  # Install required libraries
 
-COPY data_transmitter.py .  # Copy your Python script
+COPY data_transmitter.py .
 
 # Optional: Set environment variables for GCS access (consider using Kubernetes Secrets)
 # ENV PROJECT_ID your-project-id

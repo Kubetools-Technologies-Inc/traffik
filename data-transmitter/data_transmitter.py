@@ -1,13 +1,17 @@
 import os
 from google.cloud import storage  # Import for Google Cloud Storage access
+from time import sleep
 
-# Configure Google Cloud Storage client (replace with your project ID and credentials)
-client = storage.Client(project=os.environ.get('PROJECT_ID'))
-bucket_name = os.environ.get('BUCKET_NAME')  # Get bucket name from environment variable
+# User-defined variables (replace with YOUR actual values for testing)
+PROJECT_ID = "YOUR_PROJECT_ID"  # Replace with your project ID
+BUCKET_NAME = "YOUR_BUCKET_NAME"  # Replace with your bucket name
 
 def transmit_data():
   """Checks connection and transmits data from shared volume to GCS"""
-  # Check connection to GCS (e.g., by attempting to list buckets)
+  # Client configuration using user-defined variables
+  client = storage.Client(project=PROJECT_ID)
+
+  # Check connection to GCS
   try:
     buckets = list(client.list_buckets())
     print(f"Successfully connected to GCS. Found buckets: {buckets}")
@@ -15,7 +19,7 @@ def transmit_data():
     print(f"Error connecting to GCS: {e}")
     return
 
-  # Access data file from shared volume (replace with your filename and format)
+  # Access data file from shared volume (replace with your data file path and format)
   data_file = os.path.join("/shared", "traffic_data.json")  # Example path
 
   if not os.path.exists(data_file):
@@ -27,5 +31,14 @@ def transmit_data():
     data = f.read()
 
   # Create a new blob in the bucket
-  blob = client.
+  blob = client.bucket(BUCKET_NAME).blob(os.path.basename(data_file))  # Use filename
+  blob.upload_from_string(data)
+
+  print(f"Data uploaded to GCS bucket: {BUCKET_NAME}, Blob name: {blob.name}")
+
+if __name__ == "__main__":
+  while True:
+    transmit_data()
+    # Adjust the sleep time (in seconds) for desired data transfer frequency
+    sleep(10)
 

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: data-transmitter
 spec:
-  replicas: 1  # Usually 1 for data transmission
+  replicas: 1
   selector:
     matchLabels:
       app: data-transmitter
@@ -14,26 +14,37 @@ spec:
     spec:
       containers:
       - name: data-transmitter
-        image: gcr.io/[PROJECT_ID]/data-transmitter-service:latest  # Update with your image path
+        image: <your_image_repository>/data-transmitter-service:latest  # Update with your image repository
+        env:
+        - name: PROJECT_ID
+          valueFrom:
+            secretRef:
+              name: gcp-credentials  # Replace with your secret name
+              key: project_id
+        - name: BUCKET_NAME
+          valueFrom:
+            secretRef:
+              name: gcp-credentials  # Replace with your secret name
+              key: bucket_name
         resources:
           requests:
-            memory: "50Mi"  # Adjust memory request based on script complexity
-            cpu: "50m"  # Adjust CPU request based on script complexity
-        # Environment variables for GCS configuration (replace with your details)
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS  # Path to service account key
-          value: /path/to/key.json
-        - name: PROJECT_ID  # Your GCP project ID
-          value: "your-project-id"
-        - name: BUCKET_NAME  # Name of your GCS bucket
-          value: "your-bucket-name"
+            memory: "100Mi"
+            cpu: "100m"
         volumeMounts:
         - name: shared-data
-          mountPath: /shared  # Mount point for the shared volume
+          mountPath: /shared
       volumes:
       - name: shared-data
-        emptyDir: {}  # Empty directory volume for shared data
-      # Script logic for checking connection and sending data to GCS
-      # (Replace with your script filename)
-      command: ["python", "data_transmitter.py"]  # Replace with your script filename
+        persistentVolumeClaim:
+          claimName: shared-data-pvc  # Adjust the PVC name
+---
+# Secret definition (replace with your actual values)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcp-credentials
+data:
+  project_id: "<YOUR_PROJECT_ID_BASE64_ENCODED>"  # Base64-encode your project ID
+  bucket_name: "<YOUR_BUCKET_NAME_BASE64_ENCODED>"  # Base64-encode your bucket name
+type: Opaque
 

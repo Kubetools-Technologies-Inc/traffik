@@ -6,6 +6,7 @@ WORKDIR /app
 
 ENV SHARED_DATA_PATH /shared
 
+VOLUME ["/shared"]
 # Install required libraries
 COPY requirements.txt .
 RUN pip install -r requirements.txt
