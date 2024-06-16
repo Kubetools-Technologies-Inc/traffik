@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-transmitter
+spec:
+  replicas: 1  # Usually 1 for data transmission
+  selector:
+    matchLabels:
+      app: data-transmitter
+  template:
+    metadata:
+      labels:
+        app: data-transmitter
+    spec:
+      containers:
+      - name: data-transmitter
+        image: gcr.io/[PROJECT_ID]/data-transmitter-service:latest  # Update with your image path
+        resources:
+          requests:
+            memory: "50Mi"  # Adjust memory request based on script complexity
+            cpu: "50m"  # Adjust CPU request based on script complexity
+        # Environment variables for GCS configuration (replace with your details)
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS  # Path to service account key
+          value: /path/to/key.json
+        - name: PROJECT_ID  # Your GCP project ID
+          value: "your-project-id"
+        - name: BUCKET_NAME  # Name of your GCS bucket
+          value: "your-bucket-name"
+        volumeMounts:
+        - name: shared-data
+          mountPath: /shared  # Mount point for the shared volume
+      volumes:
+      - name: shared-data
+        emptyDir: {}  # Empty directory volume for shared data
+      # Script logic for checking connection and sending data to GCS
+      # (Replace with your script filename)
+      command: ["python", "data_transmitter.py"]  # Replace with your script filename
+

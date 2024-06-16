@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-collector
+spec:
+  replicas: 1  # Adjust the number of replicas for desired data generation rate
+  selector:
+    matchLabels:
+      app: data-collector
+  template:
+    metadata:
+      labels:
+        app: data-collector
+    spec:
+      containers:
+      - name: data-collector
+        image: northamerica-northeast2-docker.pkg.dev/kubetools-426513/traffik/data-collection-service:1.0  # Update with your image path
+        resources:
+          requests:
+            memory: "100Mi"  # Adjust memory request based on script complexity
+            cpu: "100m"  # Adjust CPU request based on script complexity
+        ports:
+        - containerPort: 8080  # Optional port exposure for future communication
+        env:
+        - name: FAKE_SEED  # Optional: Set a seed for faker library (reproducible data)
+          value: "your_seed_value"  # Replace with a desired seed value
+        # Liveness Probe configuration (same as before)
+        livenessProbe:
+          httpGet:
+            path: /health  # Endpoint within your container for health check
+            port: 8080  # Same port as containerPort
+            httpHeaders:
+            - name: Content-Type
+              value: application/json  # Expected content type for health check response
+          initialDelaySeconds: 15  # Wait 15 seconds before the first probe
+          periodSeconds: 20  # Repeat the probe every 20 seconds
+        # Readiness Probe configuration (same as before)
+        readinessProbe:
+          httpGet:
+            path: /ready  # Endpoint within your container indicating readiness
+            port: 8080  # Same port as containerPort
+            httpHeaders:
+            - name: Content-Type
+              value: application/json  # Expected content type for readiness check response
+          initialDelaySeconds: 5  # Wait 5 seconds before the first probe
+          periodSeconds: 10  # Repeat the probe every 10 seconds
+      volumes:
+      - name: shared-data
+        emptyDir: {}  # Empty directory volume for shared data
