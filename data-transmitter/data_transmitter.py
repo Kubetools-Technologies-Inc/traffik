@@ -3,8 +3,8 @@ from google.cloud import storage  # Import for Google Cloud Storage access
 from time import sleep
 
 # User-defined variables (replace with YOUR actual values for testing)
-PROJECT_ID = "YOUR_PROJECT_ID"  # Replace with your project ID
-BUCKET_NAME = "YOUR_BUCKET_NAME"  # Replace with your bucket name
+PROJECT_ID = os.environ.get('PROJECT_ID')
+BUCKET_NAME = os.environ.get('BUCKET_NAME')
 
 def transmit_data():
   """Checks connection and transmits data from shared volume to GCS"""
